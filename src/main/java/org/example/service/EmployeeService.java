@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.dao.EmployeeDao;
 import org.example.dto.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -14,6 +15,7 @@ public class EmployeeService {
     @Autowired
     private EmployeeDao employeeDao;
 
+    @Cacheable(value = "employeeCache")
     public URI registerEmployee(Employee employee){
 
         Integer id = employeeDao.getAllEmployees().getEmployeeList().size()+1;

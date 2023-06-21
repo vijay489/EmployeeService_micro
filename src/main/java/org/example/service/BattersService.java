@@ -3,12 +3,15 @@ package org.example.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.Logger;
+import org.example.Exception.BatterNotFoundException;
+import org.example.Exception.ControllerAdviceException;
 import org.example.dto.BatterType;
 import org.example.dto.Batters;
 import org.example.dto.Flavors;
 import org.example.dto.ResponseFlavors;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -29,16 +32,24 @@ public class BattersService {
             String content = new String(Files.readAllBytes(file.toPath()));
             ObjectMapper mapper = new ObjectMapper();
             ResponseFlavors flavors =mapper.readValue(content, ResponseFlavors.class);
-           /* ResponseFlavors flavors =mapper.readValue(content,
-                    mapper.getTypeFactory().constructCollectionType(List.class, ResponseFlavors.class));*/
+
             flavorsList = flavors.getFlavorsList().stream()
                     .filter(fla -> fla.getBatters().getBatter()
                             .stream().anyMatch(bat -> bat.getType().equals(batter))).collect(Collectors.toList());
-            log.info(content);
+
+            if(flavorsList.size() == 0)
+                throw new BatterNotFoundException();
+            //log.info(content);
 
         }catch (Exception ex){
             ex.printStackTrace();
         }
         return flavorsList;
+    }
+
+    @Async
+    public void displayFlavors(List<Flavors> flavors) {
+        log.info(String.valueOf(System.currentTimeMillis()));
+        flavors.stream().forEach(System.out::println);
     }
 }
